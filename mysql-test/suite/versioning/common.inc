@@ -1,3 +1,5 @@
+source include/have_innodb.inc;
+
 set @@session.time_zone='+00:00';
 select ifnull(max(transaction_id), 0) into @start_trx_id from mysql.transaction_registry;
 set @test_start=now(6);
