@@ -4383,6 +4383,13 @@ innobase_change_buffering_inited_ok:
 			os_thread_sleep(20);
 	}
 
+	if (current_thd && wsrep_on(current_thd)
+		&& innodb_lock_schedule_algorithm == INNODB_LOCK_SCHEDULE_ALGORITHM_VATS) {
+		ib::info() << "In Galera environment Variance-Aware-Transaction-Sheduling Algorithm"
+			   << " is not supporting. Falling back to First-Come-First-Served order. ";
+		innodb_lock_schedule_algorithm = INNODB_LOCK_SCHEDULE_ALGORITHM_FCFS;
+	}
+
 	srv_was_started = true;
 	innodb_params_adjust();
 
@@ -5351,12 +5358,14 @@ innobase_kill_query(
 				wsrep_thd_is_BF(current_thd, FALSE));
 		}
 
-		if (!wsrep_thd_is_BF(trx->mysql_thd, FALSE)) {
+		if (!wsrep_thd_is_BF(trx->mysql_thd, FALSE) && trx->abort_type != TRX_WSREP_ABORT) {
+			ut_ad(!lock_mutex_own());
 			lock_mutex_enter();
 			lock_mutex_taken = true;
 		}
 
 		if (trx->abort_type != TRX_WSREP_ABORT) {
+			ut_ad(!trx_mutex_own(trx));
 			trx_mutex_enter(trx);
 			trx_mutex_taken = true;
 		}
