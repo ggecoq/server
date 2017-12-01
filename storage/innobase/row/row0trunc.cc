@@ -1271,10 +1271,6 @@ row_truncate_complete(
 		}
 	}
 
-	if (err == DB_SUCCESS) {
-		dict_stats_update(table, DICT_STATS_EMPTY_TABLE);
-	}
-
 	trx->op_info = "";
 
 	/* For temporary tables or if there was an error, we need to reset
@@ -2102,7 +2098,7 @@ row_truncate_table_for_mysql(
 	dict_table_autoinc_unlock(table);
 
 	if (trx_is_started(trx)) {
-
+		dict_stats_update(table, DICT_STATS_EMPTY_TABLE, trx);
 		trx_commit_for_mysql(trx);
 	}
 
