@@ -6250,8 +6250,11 @@ no_such_table:
 		if (alloc) {
 			trx = trx_allocate_for_background();
 		}
+		ut_ad(!trx->persistent_stats);
+		ut_d(trx->persistent_stats = true);
 		dict_stats_init(ib_table, trx);
 		innobase_commit_low(trx);
+		ut_d(trx->persistent_stats = false);
 		if (alloc) {
 			trx_free_for_background(trx);
 		}
@@ -14298,6 +14301,7 @@ ha_innobase::info_low(
 			on the mysql.innodb_table_stats,
 			mysql.innodb_index_stats tables. */
 			trx_t* trx = trx_allocate_for_background();
+			ut_d(trx->persistent_stats = true);
 			ret = dict_stats_update(ib_table, opt, trx);
 
 			if (ret != DB_SUCCESS) {
@@ -14309,6 +14313,7 @@ ha_innobase::info_low(
 				trx_commit_for_mysql(trx);
 			}
 
+			ut_d(trx->persistent_stats = false);
 			trx_free_for_background(trx);
 
 			if (ret != DB_SUCCESS) {

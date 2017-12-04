@@ -2313,6 +2313,8 @@ dict_stats_save_index_stat(
 	char		db_utf8[MAX_DB_UTF8_LEN];
 	char		table_utf8[MAX_TABLE_UTF8_LEN];
 
+	ut_ad(trx->persistent_stats || trx->in_mysql_trx_list);
+
 	dict_fs2utf8(index->table->name.m_name, db_utf8, sizeof(db_utf8),
 		     table_utf8, sizeof(table_utf8));
 
@@ -2437,6 +2439,8 @@ dict_stats_save(
 	dict_table_t*	table;
 	char		db_utf8[MAX_DB_UTF8_LEN];
 	char		table_utf8[MAX_TABLE_UTF8_LEN];
+
+	ut_ad(trx->persistent_stats || trx->in_mysql_trx_list);
 
 	if (table_orig->is_readable()) {
 	} else {

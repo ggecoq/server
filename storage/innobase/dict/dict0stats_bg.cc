@@ -443,6 +443,7 @@ DECLARE_THREAD(dict_stats_thread)(void*)
 #endif /* UNIV_PFS_THREAD */
 
 	trx_t* trx = trx_allocate_for_background();
+	ut_d(trx->persistent_stats = true);
 
 	while (!dict_stats_start_shutdown) {
 
@@ -475,6 +476,7 @@ DECLARE_THREAD(dict_stats_thread)(void*)
 		os_event_reset(dict_stats_event);
 	}
 
+	ut_d(trx->persistent_stats = false);
 	trx_free_for_background(trx);
 	srv_dict_stats_thread_active = false;
 
